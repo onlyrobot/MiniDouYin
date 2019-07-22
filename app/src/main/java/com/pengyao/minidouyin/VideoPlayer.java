@@ -24,7 +24,6 @@ public class VideoPlayer extends AppCompatActivity {
     private TextView tvInfo;
     private ImageView avatar;
     private LottieAnimationView like;
-    private int duration = 0;
     Handler handler = new Handler();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +38,7 @@ public class VideoPlayer extends AppCompatActivity {
         tvAuthor.setText("@" + getIntent().getStringExtra("author"));
         tvInfo.setText(getIntent().getStringExtra("info"));
         avatar.setImageResource(getIntent().getIntExtra("avatar", 0));
-        like.setVisibility(View.INVISIBLE);
+        like.setVisibility(View.GONE);
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
@@ -52,35 +51,18 @@ public class VideoPlayer extends AppCompatActivity {
             @Override
             public void onDoubleClick() {
                 Toast.makeText(VideoPlayer.this, "双击", Toast.LENGTH_LONG).show();
-                duration = duration + 1;
+                like.setVisibility(View.VISIBLE);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        like.setVisibility(View.GONE);
+                    }
+                }, 1000);
             }
         }));
-        handler.post(new Runnable() {
+        like.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                if(duration > 0){
-                    duration = duration - 1;
-                    like.setVisibility(View.VISIBLE);
-                    like.requestLayout();
-                }else{
-                    like.setVisibility(View.INVISIBLE);
-                    like.requestLayout();
-                }
-                handler.postDelayed(this, 1000);
-            }
-        });
-        videoView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                Toast.makeText(VideoPlayer.this, "点击", Toast.LENGTH_LONG).show();
-                if(time == 0){
-                    time = System.currentTimeMillis();
-                }else{
-                    if(System.currentTimeMillis() - time < 500){
-                        Toast.makeText(VideoPlayer.this, "双击", Toast.LENGTH_LONG).show();
-                        time = 0;
-                    }
-                }
+            public void onClick(View v) {
                 if (isPlay) {
                     videoView.pause();
                     isPlay = false;
@@ -88,9 +70,30 @@ public class VideoPlayer extends AppCompatActivity {
                     videoView.start();
                     isPlay = true;
                 }
-                return true;
             }
         });
+//        videoView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                Toast.makeText(VideoPlayer.this, "点击", Toast.LENGTH_LONG).show();
+//                if(time == 0){
+//                    time = System.currentTimeMillis();
+//                }else{
+//                    if(System.currentTimeMillis() - time < 500){
+//                        Toast.makeText(VideoPlayer.this, "双击", Toast.LENGTH_LONG).show();
+//                        time = 0;
+//                    }
+//                }
+//                if (isPlay) {
+//                    videoView.pause();
+//                    isPlay = false;
+//                } else {
+//                    videoView.start();
+//                    isPlay = true;
+//                }
+//                return true;
+//            }
+//        });
     }
     @Override
     protected void onDestroy(){
